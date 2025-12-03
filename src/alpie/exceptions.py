@@ -20,26 +20,46 @@ class APIError(AlpieError):
     pass
 
 
-class AuthenticationError(AlpieError):
+class ContentPolicyViolationError(AlpieError):
     """Raised when authentication fails (401)."""
     pass
 
 
-class RateLimitError(AlpieError):
+class ContentPolicyViolationError(AlpieError):
     """Raised when rate limit is exceeded (429)."""
     pass
 
 
-class TimeoutError(AlpieError):
+class UnsupportedParamsError(AlpieError):
     """Raised when a request times out."""
     pass
 
 
-class ValidationError(AlpieError):
+class AuthError(AlpieError):
     """Raised when request validation fails."""
     pass
 
 
-class NetworkError(AlpieError):
+class RateLimitError(AlpieError):
     """Raised when a network error occurs."""
     pass
+
+class ServerError(AlpieError):
+    """Raised when the specified model is not found."""
+    pass
+
+class EngineOverloadedError(AlpieError):
+    """Raised when usage limit is exceeded."""
+    pass
+
+class TimeoutError(AlpieError):
+    """Raised when the specified model is not found."""
+    pass
+
+class ModelNotFoundError(AlpieError):
+    """Raised when usage limit is exceeded."""
+    pass
+
+class LimitExceededError(AlpieError):
+    """Raised when usage limit is exceeded."""
+    pass    
