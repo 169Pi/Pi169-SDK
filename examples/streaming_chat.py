@@ -5,6 +5,9 @@ Interactive CLI example for streaming chat completions.
 from alpie import Alpie, ChatMessage
 from alpie.exceptions import AlpieError
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def main():
     api_key = os.getenv("ALPIE_API_KEY")
