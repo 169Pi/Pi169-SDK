@@ -25,9 +25,6 @@ class ContentPolicyViolationError(AlpieError):
     pass
 
 
-class ContentPolicyViolationError(AlpieError):
-    """Raised when rate limit is exceeded (429)."""
-    pass
 
 
 class UnsupportedParamsError(AlpieError):
