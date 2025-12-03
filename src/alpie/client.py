@@ -8,11 +8,11 @@ import httpx
 
 from alpie.exceptions import (
     APIError,
-    AuthenticationError,
+    AuthError,
     RateLimitError,
     TimeoutError as AlpieTimeoutError,
-    ValidationError,
-    NetworkError,
+    ServerError,
+    EngineOverloadedError,
 )
 from alpie.types import (
     ChatMessage,
