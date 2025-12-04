@@ -23,7 +23,9 @@ class APIError(AlpieError):
 class ContentPolicyViolationError(AlpieError):
     """Raised when authentication fails (401)."""
     pass
-
+class ContextWindowExceededError(AlpieError):
+    """Raised when the context window is exceeded."""
+    pass
 
 
 
