@@ -1,6 +1,6 @@
 from alpie import Alpie, ChatMessage
 
-client = Alpie(api_key="pi-XQo91TO03f9IHnN3e1LfkVq4NOHVQiA7")
+client = Alpie(api_key="pi-XQo91TO03f9IHnN3e1LfkVq4NOHVQi7")
 
 stream = client.chat.completions.create(
     model="alpie-32b",
