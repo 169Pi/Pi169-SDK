@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     license="MIT",
     install_requires=[
-        "anyio>=4.11.0",
+        "anyio==4.11.0",
         "certifi>=2025.11.12",
         "httpx>=0.28.1",
         "httpcore>=1.0.9",

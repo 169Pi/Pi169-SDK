@@ -67,14 +67,28 @@ class Alpie:
         error_info = error_data.get("error", {})
 
         if isinstance(error_info, dict):
-            message = error_info.get("message", "Unknown error")
+            message = (
+            error_info.get("message") or
+            error_data.get("message") or
+            error_data.get("detail") or
+            error_data.get("error_description") or
+            str(error_info) or
+            response.text or
+            "Unknown error"
+            )
             error_type = error_info.get("type", "unknown")
+
         else:
-            message = str(error_info)
-            error_type = "unknown"
+            message = (
+            str(error_info) or
+            error_data.get("message") or
+            error_data.get("detail") or
+            response.text or
+            "Unknown error"
+        )
+        error_type = "unknown"
 
         status_code = response.status_code
-
         # ---------------------
         # Status-Code Based Mapping
         # ---------------------
