@@ -7,7 +7,7 @@ setup(
     name="alpie",   # package name based on folder src/alpie
     version="0.1.0",
     author="169PI",
-    author_email="support@169pi.com",
+    author_email="contact@169pi.com",
     description="Production-ready Python SDK for the Alpie reasoning model API platform",
     long_description=long_description,
     long_description_content_type="text/markdown",

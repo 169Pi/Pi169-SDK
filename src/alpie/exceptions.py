@@ -13,6 +13,22 @@ class AlpieError(Exception):
         self.message = message
         self.status_code = status_code
         self.response_data = response_data
+        
+    def __str__(self):
+        # Prefer backend message if provided
+        base = self.message
+
+        if self.status_code:
+            base = f"[{self.status_code}] {base}"
+
+        # Show backend-provided JSON error message if available
+        if self.response_data and "error" in self.response_data:
+            err = self.response_data["error"]
+            msg = err.get("message")
+            if msg and msg != self.message:
+                base += f" | Details: {msg}"
+
+        return base
 
 
 class APIError(AlpieError):

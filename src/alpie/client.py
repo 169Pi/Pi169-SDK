@@ -94,7 +94,10 @@ class Alpie:
         # ---------------------
 
         if status_code == 401:
+            if message.lower() in ["error", "unauthorized", ""]:
+                message = "Invalid API key. Please check your API key and try again."
             raise AuthError(message, status_code, error_data)
+
 
         if status_code == 400:
             # multiple possible API-level subtypes
@@ -103,6 +106,11 @@ class Alpie:
             elif error_type == "context_window_exceeded":
                 raise ContextWindowExceededError(message, status_code, error_data)
             elif error_type == "unsupported_params":
+                raise UnsupportedParamsError(message, status_code, error_data)
+            elif error_type=="max_tokens":
+                message = (
+                  "Invalid 'max_tokens'. It must be an integer between 0 and 16,384."
+                )
                 raise UnsupportedParamsError(message, status_code, error_data)
             else:
                 raise APIError(message, status_code, error_data)
