@@ -18,6 +18,7 @@ from alpie.exceptions import (
     ContentPolicyViolationError,
     ContextWindowExceededError,
     UnsupportedParamsError,
+    KeyNotActive
 )
 
 from alpie.alpie_types import (
@@ -107,16 +108,17 @@ class Alpie:
                 raise ContextWindowExceededError(message, status_code, error_data)
             elif error_type == "unsupported_params":
                 raise UnsupportedParamsError(message, status_code, error_data)
-            elif error_type=="max_tokens":
-                message = (
-                  "Invalid 'max_tokens'. It must be an integer between 0 and 16,384."
-                )
-                raise UnsupportedParamsError(message, status_code, error_data)
             else:
                 raise APIError(message, status_code, error_data)
 
         if status_code == 402:
-            raise LimitExceededError(message, status_code, error_data)
+            if error_type == "limit_exceeded":
+                raise LimitExceededError(message, status_code, error_data)
+            elif error_type == "key_not_active":
+                raise KeyNotActive(message, status_code, error_data)
+            else:
+                raise APIError(message, status_code, error_data)
+
 
         if status_code == 403:
             raise ContentPolicyViolationError(message, status_code, error_data)

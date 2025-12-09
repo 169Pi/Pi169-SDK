@@ -13,7 +13,7 @@ class AlpieError(Exception):
         self.message = message
         self.status_code = status_code
         self.response_data = response_data
-        
+
     def __str__(self):
         # Prefer backend message if provided
         base = self.message
@@ -78,3 +78,5 @@ class ModelNotFoundError(AlpieError):
 class LimitExceededError(AlpieError):
     """Raised when usage limit is exceeded."""
     pass    
+class  KeyNotActive(AlpieError):
+    pass
