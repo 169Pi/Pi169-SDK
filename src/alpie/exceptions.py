@@ -22,11 +22,11 @@ class AlpieError(Exception):
             base = f"[{self.status_code}] {base}"
 
         # Show backend-provided JSON error message if available
-        if self.response_data and "error" in self.response_data:
-            err = self.response_data["error"]
-            msg = err.get("message")
-            if msg and msg != self.message:
-                base += f" | Details: {msg}"
+        # if self.response_data and "error" in self.response_data:
+        #     err = self.response_data["error"]
+        #     msg = err.get("message")
+        #     if msg or msg != self.message:
+        #         base += f" | Details: {msg}"
 
         return base
 

@@ -66,11 +66,12 @@ class Alpie:
             error_data = {"error": {"message": response.text or "Unknown error"}}
 
         error_info = error_data.get("error", {})
+        print(error_info)
+    
 
         if isinstance(error_info, dict):
             message = (
             error_info.get("message") or
-            error_data.get("message") or
             error_data.get("detail") or
             error_data.get("error_description") or
             str(error_info) or
