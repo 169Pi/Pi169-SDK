@@ -338,12 +338,17 @@ When contacting support, include:
 
 ### Version 0.1.0
 
-- Initial release of the Alpie Python SDK
+Initial release of the Alpie Python SDK
 - Added chat completions (sync and streaming)
 - Added typed exceptions and error mapping
 - Added retry logic, timeout configuration, and base client setup
 - Added available models listing
 - Added full pytest-based test suite
+
+Future versions will document
+- Bug fixes
+- Added features
+- Deprecations
 
 ## License
 
