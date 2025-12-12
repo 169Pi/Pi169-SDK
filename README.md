@@ -39,6 +39,7 @@ client = Alpie(
 - `max_retries` → safe retry logic for network issues
 
 ## Features
+
 - Streaming & Non-Streaming Chat Completions
 - Clean, type-safe Python Interface (dataclasses, type hints)
 - Robust Error Handling with typed exceptions
@@ -93,6 +94,36 @@ Streaming responses yield partial tokens in real time — ideal for chatbots, UI
 | Model | Parameters | Description |
 |-------|------------|-------------|
 | alpie-32b | 32B | Advanced reasoning model |
+
+## Rate Limits and Quotas
+
+Alpie enforces rate limits to ensure fair and stable usage of the API.
+
+### General Rate Limits
+
+- **Requests per minute (RPM):** 60
+- **Requests per hour (RPH):** 1000
+
+If you exceed the limit, the API will return:
+```json
+{
+  "status": 429,
+  "error": "rate_limit_exceeded"
+}
+```
+
+### Retry and Backoff Recommendations
+
+- Wait for the `Retry-After` header
+- Avoid retry storms by ensuring you do not send parallel retries
+
+### Best Practices
+
+- Batch multiple operations into fewer requests
+- Use streaming for long outputs to avoid token bursts
+- Maintain conversation history efficiently
+- Cache responses when appropriate
+- Spread requests evenly instead of sending them in spikes
 
 ## Error Handling
 
@@ -287,6 +318,32 @@ pytest tests/test_streaming.py
 ```bash
 pytest tests/test_streaming.py::test_basic_stream
 ```
+
+## Support
+
+For questions, feature requests, or bug reports:
+
+- **GitHub Issues:** [https://github.com/169pi/alpie-sdk/issues](https://github.com/169pi/alpie-sdk/issues)
+- **Support Email:** contact@169pi.com
+
+When contacting support, include:
+
+- SDK version
+- Python version
+- API endpoint used
+- Error message or traceback
+- Minimal reproducible example if possible
+
+## Changelog
+
+### Version 0.1.0
+
+- Initial release of the Alpie Python SDK
+- Added chat completions (sync and streaming)
+- Added typed exceptions and error mapping
+- Added retry logic, timeout configuration, and base client setup
+- Added available models listing
+- Added full pytest-based test suite
 
 ## License
 
