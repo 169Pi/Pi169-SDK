@@ -323,7 +323,7 @@ pytest tests/test_streaming.py::test_basic_stream
 
 For questions, feature requests, or bug reports:
 
-- **GitHub Issues:** [https://github.com/169pi/alpie-sdk/issues](https://github.com/169pi/alpie-sdk/issues)
+- **GitHub Issues:** [https://github.com/169pi/Alpie-Chat-SDK/issues](https://github.com/169pi/Alpie-Chat-SDK/issues)
 - **Support Email:** contact@169pi.com
 
 When contacting support, include:
