@@ -1,86 +1,295 @@
-Alpie Python SDK
+# Alpie Python SDK
 
 The Alpie SDK provides a clean, type-safe, and robust interface for interacting with the Alpie 32B reasoning model.
 Designed for production workloads with streaming support, retries, timeouts, typed exceptions, and intuitive APIs.
 
-Installation
-pip  install  alpie-chat-sdk
+## Installation
+```bash
+pip install alpie-chat-sdk
+```
+
 Python 3.10+ required
 
-Authentication
+## Authentication
+
 Alpie uses Bearer Token authentication.
+```python
+from alpie import Alpie
 
-from  alpie  import  Alpie
-client  =  Alpie(api_key="YOUR_API_KEY")
-Every request automatically sends:(add the url to Create API key)
+client = Alpie(api_key="YOUR_API_KEY")
+```
 
-Authorization:  Bearer  <API_KEY>
-Base URL & Client Configuration
-client  =  Alpie(
+Every request automatically sends ([Create API Key](https://api.169pi.com)):
+```
+Authorization: Bearer <API_KEY>
+```
 
-api_key="YOUR_API_KEY",
-
-base_url="https://api.169pi.com/v1",
-
-timeout=60.0,
-
-max_retries=2,
-
+## Base URL & Client Configuration
+```python
+client = Alpie(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.169pi.com/v1",
+    timeout=60.0,
+    max_retries=2,
 )
-base_url → API root
+```
 
-timeout → max wait time
+- `base_url` → API root
+- `timeout` → max wait time
+- `max_retries` → safe retry logic for network issues
 
-max_retries → safe retry logic for network issues
+## Features
+- Streaming & Non-Streaming Chat Completions
+- Clean, type-safe Python Interface (dataclasses, type hints)
+- Robust Error Handling with typed exceptions
+- Production-Ready Networking (retries, timeouts, httpx)
+- Fully Tested with pytest
+- Optimized for Reasoning Models
 
-Features
-Streaming & Non-Streaming Chat Completions
+## Quickstart Examples
 
-Clean, type-safe Python Interface (dataclasses, type hints)
+### Non-Streaming Chat Completion
+```python
+from alpie import Alpie, ChatMessage
 
-Robust Error Handling with typed exceptions
+client = Alpie(api_key="YOUR_API_KEY")
 
-Production-Ready Networking (retries, timeouts, httpx)
-
-Fully Tested with pytest
-
-Optimized for Reasoning Models
-
-Quickstart Examples
-Non-Streaming Chat Completion
-from  alpie  import  Alpie,  ChatMessage
-client  =  Alpie(api_key="YOUR_API_KEY")
-response  =  client.chat.completions.create(
-
-model="alpie-22b",
-
-messages=[
-
-ChatMessage(role="system",  content="You are a helpful assistant."),
-
-ChatMessage(role="user",  content="What is Python?")
-
-],
-
-max_tokens=10000,
-
+response = client.chat.completions.create(
+    model="alpie-22b",
+    messages=[
+        ChatMessage(role="system", content="You are a helpful assistant."),
+        ChatMessage(role="user", content="What is Python?")
+    ],
+    max_tokens=10000,
 )
-
-  
 
 print(response.choices[0].message.content)
-Streaming Chat Completion
-from  alpie  import  Alpie,  ChatMessage
-client  =  Alpie(api_key="YOUR_API_KEY")
-stream  =  client.chat.completions.create(
-model="alpie-32b",
-messages=[
-ChatMessage(role="user",  content="tell me a poem about coding")
-],
-stream=True,
-max_tokens=5000,
+```
+
+### Streaming Chat Completion
+```python
+from alpie import Alpie, ChatMessage
+
+client = Alpie(api_key="YOUR_API_KEY")
+
+stream = client.chat.completions.create(
+    model="alpie-32b",
+    messages=[
+        ChatMessage(role="user", content="tell me a poem about coding")
+    ],
+    stream=True,
+    max_tokens=5000,
 )
-for  chunk  in  stream:
-if  chunk.delta_content:
-print(chunk.delta_content,  end="",  flush=True)
+
+for chunk in stream:
+    if chunk.delta_content:
+        print(chunk.delta_content, end="", flush=True)
+```
+
 Streaming responses yield partial tokens in real time — ideal for chatbots, UIs, and live applications.
+
+## Available Models
+
+| Model | Parameters | Description |
+|-------|------------|-------------|
+| alpie-32b | 32B | Advanced reasoning model |
+
+## Error Handling
+
+The SDK includes a full typed exception hierarchy for safe and predictable error handling.
+
+### Base Exception
+```python
+class AlpieError(Exception):
+    ...
+```
+
+### Exception Hierarchy
+```
+AlpieError
+├── APIError
+├── ContentPolicyViolationError
+├── ContextWindowExceededError
+├── UnsupportedParamsError
+├── AuthError
+├── RateLimitError
+├── ServerError
+├── EngineOverloadedError
+├── TimeoutError
+├── ModelNotFoundError
+├── LimitExceededError
+└── KeyNotActive
+```
+
+### Example Error Response (from backend)
+```json
+{
+  "error": {
+    "message": "Key not active",
+    "type": "key_not_active",
+    "code": 402
+  }
+}
+```
+
+SDK automatically maps this to:
+```python
+KeyNotActive("Key not active", status_code=402, response_data={...})
+```
+
+### Catching Errors
+
+**Catch all Alpie-related errors:**
+```python
+from alpie import AlpieError
+
+try:
+    client.chat.completions.create(...)
+except AlpieError as e:
+    print("Error:", e.message)
+```
+
+**Catch specific errors:**
+```python
+from alpie import (
+    Alpie,
+    AuthError,
+    RateLimitError,
+    TimeoutError,
+    ModelNotFoundError,
+    AlpieError,
+    ChatMessage,
+)
+
+client = Alpie(api_key="YOUR_API_KEY")
+
+try:
+    response = client.chat.completions.create(
+        model="alpie-32b",
+        messages=[ChatMessage(role="user", content="Hello!")],
+        max_tokens=100
+    )
+
+except AuthError:
+    print("Invalid API key.")
+
+except KeyNotActive:
+    print("Your API key is not active.")
+
+except RateLimitError:
+    print("Rate limit exceeded. Please try again later.")
+
+except TimeoutError:
+    print("The request timed out.")
+
+except ModelNotFoundError:
+    print("The requested model does not exist.")
+
+except AlpieError as e:
+    print("An Alpie SDK error occurred:", e)
+
+else:
+    print("Response:", response.choices[0].message.content)
+```
+
+### Error-to-Exception Mapping
+
+| API Error | SDK Exception |
+|-----------|---------------|
+| 401 auth failure | AuthError |
+| 400 invalid params | UnsupportedParamsError |
+| 413 context window exceeded | ContextWindowExceededError |
+| 404 model not found | ModelNotFoundError |
+| 429 rate limit exceeded | RateLimitError |
+| 500 internal server error | ServerError |
+| 503 engine overloaded | EngineOverloadedError |
+
+## Recommended Project Structure
+```
+alpie/
+├── __init__.py
+├── client.py
+├── chat/
+│   ├── completions.py
+├── types.py
+├── errors.py
+├── utils/
+│   └── http.py
+```
+
+## Testing
+
+The Alpie SDK includes a complete pytest-based test suite.
+
+**Run all tests:**
+```bash
+pytest
+```
+
+### Test Directory Structure
+```
+project-root/
+│
+├── alpie/
+│   ├── __init__.py
+│   ├── client.py
+│   ├── errors.py
+│   ├── types.py
+│   ├── chat/
+│   │   ├── completions.py
+│   │   └── schemas.py
+│   └── utils/
+│       └── http.py
+│
+└── tests/
+    ├── test_streaming.py
+    ├── test_error_mapping.py
+    ├── test_timeout.py
+    ├── test_retry_logic.py
+    └── test_chat_completions.py
+```
+
+### What Each Test File Covers
+
+| Test File | Purpose |
+|-----------|---------|
+| test_streaming.py | Verifies streaming responses & chunk iteration |
+| test_error_mapping.py | Ensures correct mapping to SDK exceptions |
+| test_timeout.py | Tests request timeout behavior |
+| test_retry_logic.py | Validates retry handling on failures |
+| test_chat_completions.py | Tests non-streaming chat completion flow |
+
+### Install Test Dependencies
+```bash
+pip install pytest pytest-httpx respx
+```
+
+This allows mocking API responses so tests run offline.
+
+### Running the Tests
+
+**Run all tests:**
+```bash
+pytest
+```
+
+**Verbose mode:**
+```bash
+pytest -v
+```
+
+**Run a single test file:**
+```bash
+pytest tests/test_streaming.py
+```
+
+**Run a single test:**
+```bash
+pytest tests/test_streaming.py::test_basic_stream
+```
+
+## License
+
+Apache 2.0
+
+© 169PI
