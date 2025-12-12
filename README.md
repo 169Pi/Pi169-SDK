@@ -19,7 +19,7 @@ from alpie import Alpie
 client = Alpie(api_key="YOUR_API_KEY")
 ```
 
-Every request automatically sends ([Create API Key](https://api.169pi.com)):
+Every request automatically sends ([Create API Key](https://playground.169pi.ai/dashboard/api-keys)):
 ```
 Authorization: Bearer <API_KEY>
 ```
