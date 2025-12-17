@@ -7,7 +7,7 @@ from alpie.exceptions import AlpieError
 import os
 
 def main():
-    api_key = os.getenv("ALPIE_API_KEY")
+    api_key = "ALPIE_API_KEY"  # Replace with your actual API key or fetch from environment
     if not api_key:
         print("Please set ALPIE_API_KEY environment variable")
         print("Example: export ALPIE_API_KEY='your-api-key-here'")

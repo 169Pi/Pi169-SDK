@@ -4,8 +4,8 @@ with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="alpie",   # package name based on folder src/alpie
-    version="0.1.0",
+    name="alpie-chat-sdk",   # package name based on folder src/alpie
+    version="0.1.4",
     author="169PI",
     author_email="contact@169pi.com",
     description="Production-ready Python SDK for the Alpie reasoning model API platform",
@@ -17,7 +17,6 @@ setup(
     include_package_data=True,
     license="MIT",
     install_requires=[
-        "anyio==4.11.0",
         "certifi>=2025.11.12",
         "httpx>=0.28.1",
         "httpcore>=1.0.9",

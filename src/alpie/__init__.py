@@ -1,8 +1,9 @@
 """
-Alpie SDK - Production-ready Python SDK for the Alpie reasoning model API platform.
+Alpie SDK 
 """
 
 from alpie.client import Alpie
+from alpie.async_client import AsyncAlpie
 from alpie.exceptions import (
     AlpieError,
     APIError,
@@ -26,10 +27,11 @@ from alpie.alpie_types import (
     Usage,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.4"
 
 __all__ = [
     "Alpie",
+    "AsyncAlpie",
     "AlpieError",
     "APIError",
     "AuthError",
