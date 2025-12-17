@@ -1,7 +1,7 @@
 # Alpie Python SDK
 
 The Alpie SDK provides a clean, type-safe, and robust interface for interacting with the Alpie 32B reasoning model.
-Designed for production workloads with streaming support, retries, timeouts, typed exceptions, and intuitive APIs.
+Designed for production workloads with **streaming support, async/await patterns, retries, timeouts, typed exceptions, and intuitive APIs**.
 
 ## Installation
 ```bash
@@ -13,10 +13,19 @@ Python 3.10+ required
 ## Authentication
 
 Alpie uses Bearer Token authentication.
+
+**Synchronous Client:**
 ```python
 from alpie import Alpie
 
 client = Alpie(api_key="YOUR_API_KEY")
+```
+
+**Asynchronous Client:**
+```python
+from alpie.async_client import AsyncAlpie
+
+client = AsyncAlpie(api_key="YOUR_API_KEY")
 ```
 
 Every request automatically sends ([Create API Key](https://playground.169pi.ai/dashboard/api-keys)):
@@ -25,8 +34,24 @@ Authorization: Bearer <API_KEY>
 ```
 
 ## Base URL & Client Configuration
+
+**Synchronous Client:**
 ```python
+from alpie import Alpie
+
 client = Alpie(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.169pi.com/v1",
+    timeout=60.0,
+    max_retries=2,
+)
+```
+
+**Asynchronous Client:**
+```python
+from alpie.async_client import AsyncAlpie
+
+client = AsyncAlpie(
     api_key="YOUR_API_KEY",
     base_url="https://api.169pi.com/v1",
     timeout=60.0,
@@ -41,6 +66,7 @@ client = Alpie(
 ## Features
 
 - Streaming & Non-Streaming Chat Completions
+- **Async/Await Support** for high-performance concurrent requests
 - Clean, type-safe Python Interface (dataclasses, type hints)
 - Robust Error Handling with typed exceptions
 - Production-Ready Networking (retries, timeouts, httpx)
@@ -49,14 +75,16 @@ client = Alpie(
 
 ## Quickstart Examples
 
-### Non-Streaming Chat Completion
+### Synchronous Usage
+
+#### Non-Streaming Chat Completion
 ```python
 from alpie import Alpie, ChatMessage
 
 client = Alpie(api_key="YOUR_API_KEY")
 
 response = client.chat.completions.create(
-    model="alpie-22b",
+    model="alpie-32b",
     messages=[
         ChatMessage(role="system", content="You are a helpful assistant."),
         ChatMessage(role="user", content="What is Python?")
@@ -67,7 +95,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-### Streaming Chat Completion
+#### Streaming Chat Completion
 ```python
 from alpie import Alpie, ChatMessage
 
@@ -76,7 +104,7 @@ client = Alpie(api_key="YOUR_API_KEY")
 stream = client.chat.completions.create(
     model="alpie-32b",
     messages=[
-        ChatMessage(role="user", content="tell me a poem about coding")
+        ChatMessage(role="user", content="Tell me a poem about coding")
     ],
     stream=True,
     max_tokens=5000,
@@ -88,6 +116,98 @@ for chunk in stream:
 ```
 
 Streaming responses yield partial tokens in real time — ideal for chatbots, UIs, and live applications.
+
+---
+
+### Asynchronous Usage
+
+#### Non-Streaming Chat Completion (Async)
+```python
+import asyncio
+from alpie.async_client import AsyncAlpie
+
+async def main():
+    # 1. Initialize the async client
+    client = AsyncAlpie(api_key="YOUR_API_KEY")
+
+    print("Sending request...")
+
+    # 2. Await the response
+    response = await client.chat.completions.create(
+        model="alpie-32b",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What is the capital of France?"}
+        ]
+    )
+
+    # 3. Access the data just like the sync version
+    print(f"Response: {response.choices[0].message.content}")
+    print(f"Tokens used: {response.usage.total_tokens}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+#### Streaming Chat Completion (Async)
+```python
+import asyncio
+from alpie.async_client import AsyncAlpie
+
+async def main():
+    client = AsyncAlpie(api_key="YOUR_API_KEY")
+
+    # 1. Request with stream=True
+    stream = await client.chat.completions.create(
+        model="alpie-32b",
+        messages=[{"role": "user", "content": "Write a long poem about coding."}],
+        stream=True
+    )
+
+    print("Assistant: ", end="", flush=True)
+
+    # 2. Iterate asynchronously over the chunks
+    async for chunk in stream:
+        content = chunk.delta_content
+        if content:
+            print(content, end="", flush=True)
+    
+    print("\n--- Stream finished ---")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+#### Concurrent Requests (Async)
+Process multiple requests concurrently for better performance:
+
+```python
+import asyncio
+from alpie.async_client import AsyncAlpie
+
+async def main():
+    client = AsyncAlpie(api_key="YOUR_API_KEY")
+
+    # Create multiple tasks
+    tasks = [
+        client.chat.completions.create(
+            model="alpie-32b",
+            messages=[{"role": "user", "content": f"What is {n} + {n}?"}]
+        )
+        for n in range(1, 6)
+    ]
+
+    # Execute concurrently
+    responses = await asyncio.gather(*tasks)
+
+    for i, response in enumerate(responses, 1):
+        print(f"Response {i}: {response.choices[0].message.content}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+---
 
 ## Available Models
 
@@ -124,6 +244,7 @@ If you exceed the limit, the API will return:
 - Maintain conversation history efficiently
 - Cache responses when appropriate
 - Spread requests evenly instead of sending them in spikes
+- **Use async client for concurrent requests** to maximize throughput while respecting rate limits
 
 ## Error Handling
 
@@ -168,7 +289,7 @@ SDK automatically maps this to:
 KeyNotActive("Key not active", status_code=402, response_data={...})
 ```
 
-### Catching Errors
+### Catching Errors (Sync)
 
 **Catch all Alpie-related errors:**
 ```python
@@ -187,6 +308,7 @@ from alpie import (
     AuthError,
     RateLimitError,
     TimeoutError,
+    KeyNotActive,
     ModelNotFoundError,
     AlpieError,
     ChatMessage,
@@ -223,11 +345,63 @@ else:
     print("Response:", response.choices[0].message.content)
 ```
 
+### Catching Errors (Async)
+
+Error handling works identically in async contexts:
+
+```python
+import asyncio
+from alpie.async_client import AsyncAlpie
+from alpie import (
+    AuthError,
+    RateLimitError,
+    TimeoutError,
+    KeyNotActive,
+    ModelNotFoundError,
+    AlpieError,
+)
+
+async def main():
+    client = AsyncAlpie(api_key="YOUR_API_KEY")
+
+    try:
+        response = await client.chat.completions.create(
+            model="alpie-32b",
+            messages=[{"role": "user", "content": "Hello!"}],
+            max_tokens=100
+        )
+
+    except AuthError:
+        print("Invalid API key.")
+
+    except KeyNotActive:
+        print("Your API key is not active.")
+
+    except RateLimitError:
+        print("Rate limit exceeded. Please try again later.")
+
+    except TimeoutError:
+        print("The request timed out.")
+
+    except ModelNotFoundError:
+        print("The requested model does not exist.")
+
+    except AlpieError as e:
+        print("An Alpie SDK error occurred:", e)
+
+    else:
+        print("Response:", response.choices[0].message.content)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
 ### Error-to-Exception Mapping
 
 | API Error | SDK Exception |
 |-----------|---------------|
 | 401 auth failure | AuthError |
+| 402 key not active | KeyNotActive |
 | 400 invalid params | UnsupportedParamsError |
 | 413 context window exceeded | ContextWindowExceededError |
 | 404 model not found | ModelNotFoundError |
@@ -235,17 +409,38 @@ else:
 | 500 internal server error | ServerError |
 | 503 engine overloaded | EngineOverloadedError |
 
+## Best Practices
+
+### When to Use Async vs Sync
+
+**Use Async when:**
+- Making multiple concurrent API requests
+- Building high-performance web servers (FastAPI, aiohttp)
+- Integrating with other async libraries
+- Handling many simultaneous streaming connections
+- You need maximum throughput within rate limits
+
+**Use Sync when:**
+- Writing simple scripts
+- Making sequential requests
+- Working in environments without async support
+- Prototyping or learning
+
+
+
 ## Recommended Project Structure
 ```
 alpie/
 ├── __init__.py
 ├── client.py
+├── async_client.py
 ├── chat/
 │   ├── completions.py
+│   └── async_completions.py
 ├── types.py
 ├── errors.py
-├── utils/
-│   └── http.py
+└── utils/
+    └── http.py
 ```
 
 ## Testing
@@ -264,20 +459,27 @@ project-root/
 ├── alpie/
 │   ├── __init__.py
 │   ├── client.py
+│   ├── async_client.py
 │   ├── errors.py
 │   ├── types.py
 │   ├── chat/
 │   │   ├── completions.py
+│   │   ├── async_completions.py
 │   │   └── schemas.py
 │   └── utils/
 │       └── http.py
 │
 └── tests/
     ├── test_streaming.py
+    ├── test_async_streaming.py
     ├── test_error_mapping.py
+    ├── test_async_error_mapping.py
     ├── test_timeout.py
+    ├── test_async_timeout.py
     ├── test_retry_logic.py
-    └── test_chat_completions.py
+    ├── test_async_retry_logic.py
+    ├── test_chat_completions.py
+    └── test_async_chat_completions.py
 ```
 
 ### What Each Test File Covers
@@ -285,14 +487,19 @@ project-root/
 | Test File | Purpose |
 |-----------|---------|
 | test_streaming.py | Verifies streaming responses & chunk iteration |
+| test_async_streaming.py | Verifies async streaming responses |
 | test_error_mapping.py | Ensures correct mapping to SDK exceptions |
+| test_async_error_mapping.py | Tests async error handling |
 | test_timeout.py | Tests request timeout behavior |
+| test_async_timeout.py | Tests async timeout behavior |
 | test_retry_logic.py | Validates retry handling on failures |
+| test_async_retry_logic.py | Tests async retry logic |
 | test_chat_completions.py | Tests non-streaming chat completion flow |
+| test_async_chat_completions.py | Tests async non-streaming completions |
 
 ### Install Test Dependencies
 ```bash
-pip install pytest pytest-httpx respx
+pip install pytest pytest-httpx pytest-asyncio respx
 ```
 
 This allows mocking API responses so tests run offline.
@@ -314,6 +521,11 @@ pytest -v
 pytest tests/test_streaming.py
 ```
 
+**Run async tests:**
+```bash
+pytest tests/test_async_streaming.py
+```
+
 **Run a single test:**
 ```bash
 pytest tests/test_streaming.py::test_basic_stream
@@ -333,22 +545,30 @@ When contacting support, include:
 - API endpoint used
 - Error message or traceback
 - Minimal reproducible example if possible
+- Whether you're using sync or async client
 
 ## Changelog
 
 ### Version 0.1.0
 
-Initial release of the Alpie Python SDK
+**New Features:**
+- Added async/await support with `AsyncAlpie` client
+- Added async streaming support
+- Added async error handling
+- Added concurrent request examples
+- Added context manager support for both sync and async clients
 - Added chat completions (sync and streaming)
 - Added typed exceptions and error mapping
 - Added retry logic, timeout configuration, and base client setup
 - Added available models listing
 - Added full pytest-based test suite
 
-Future versions will document
-- Bug fixes
-- Added features
-- Deprecations
+**Documentation:**
+- Added comprehensive async usage examples
+- Added best practices for sync vs async
+- Updated test suite documentation
+
+
 
 ## License
 
