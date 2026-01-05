@@ -1,31 +1,31 @@
-# Alpie Python SDK
+# Pi169 Python SDK
 
-The Alpie SDK provides a clean, type-safe, and robust interface for interacting with the Alpie 32B reasoning model.
+The Pi169 SDK provides a clean, type-safe, and robust interface for interacting with the Alpie 32B reasoning model.
 Designed for production workloads with **streaming support, async/await patterns, retries, timeouts, typed exceptions, and intuitive APIs**.
 
 ## Installation
 ```bash
-pip install alpie-chat-sdk
+pip install pi169
 ```
 
 Python 3.10+ required
 
 ## Authentication
 
-Alpie uses Bearer Token authentication.
+Pi169 uses Bearer Token authentication.
 
 **Synchronous Client:**
 ```python
-from alpie import Alpie
+from pi169 import Pi169Client
 
-client = Alpie(api_key="YOUR_API_KEY")
+client = Pi169Client(api_key="YOUR_API_KEY")
 ```
 
 **Asynchronous Client:**
 ```python
-from alpie.async_client import AsyncAlpie
+from pi169.async_client import AsyncPi169Client
 
-client = AsyncAlpie(api_key="YOUR_API_KEY")
+client = AsyncPi169Client(api_key="YOUR_API_KEY")
 ```
 
 Every request automatically sends ([Create API Key](https://playground.169pi.ai/dashboard/api-keys)):
@@ -37,9 +37,9 @@ Authorization: Bearer <API_KEY>
 
 **Synchronous Client:**
 ```python
-from alpie import Alpie
+from pi169 import Pi169Client
 
-client = Alpie(
+client = Pi169Client(
     api_key="YOUR_API_KEY",
     base_url="https://api.169pi.com/v1",
     timeout=60.0,
@@ -49,9 +49,9 @@ client = Alpie(
 
 **Asynchronous Client:**
 ```python
-from alpie.async_client import AsyncAlpie
+from pi169.async_client import AsyncPi169Client
 
-client = AsyncAlpie(
+client = AsyncPi169Client(
     api_key="YOUR_API_KEY",
     base_url="https://api.169pi.com/v1",
     timeout=60.0,
@@ -79,40 +79,65 @@ client = AsyncAlpie(
 
 #### Non-Streaming Chat Completion
 ```python
-from alpie import Alpie, ChatMessage
+import os
+from dotenv import load_dotenv
+from pi169 import Pi169Client
 
-client = Alpie(api_key="YOUR_API_KEY")
+load_dotenv()
+
+api_key = os.getenv("ALPIE_API_KEY")
+if not api_key:
+    raise ValueError("API key missing")
+
+client = Pi169Client(api_key=api_key)
 
 response = client.chat.completions.create(
     model="alpie-32b",
     messages=[
-        ChatMessage(role="system", content="You are a helpful assistant."),
-        ChatMessage(role="user", content="What is Python?")
+        {"role": "user", "content": "What is the capital of France?"}
     ],
-    max_tokens=10000,
+    stream=False,
 )
 
-print(response.choices[0].message.content)
+# Print the assistant reply
+if response.choices:
+    message = response.choices[0].message
+    if message and message.content:
+        print(message.content)
+else:
+    print("No choices returned")
 ```
 
 #### Streaming Chat Completion
 ```python
-from alpie import Alpie, ChatMessage
+import os
+from dotenv import load_dotenv
+from pi169 import Pi169Client
 
-client = Alpie(api_key="YOUR_API_KEY")
+load_dotenv()
+
+api_key = os.getenv("ALPIE_API_KEY")
+if not api_key:
+    raise ValueError("API key missing")
+
+client = Pi169Client(api_key=api_key)
 
 stream = client.chat.completions.create(
     model="alpie-32b",
-    messages=[
-        ChatMessage(role="user", content="Tell me a poem about coding")
-    ],
+    messages=[{"role": "user", "content": "what is the capital of france?"}],
     stream=True,
-    max_tokens=5000,
 )
 
 for chunk in stream:
-    if chunk.delta_content:
-        print(chunk.delta_content, end="", flush=True)
+    if not chunk.choices:
+        continue
+
+    choice = chunk.choices[0]   
+    delta = choice.get("delta", {})
+
+    content = delta.get("content")
+    if content:
+        print(content, end="", flush=True)
 ```
 
 Streaming responses yield partial tokens in real time — ideal for chatbots, UIs, and live applications.
@@ -124,26 +149,27 @@ Streaming responses yield partial tokens in real time — ideal for chatbots, UI
 #### Non-Streaming Chat Completion (Async)
 ```python
 import asyncio
-from alpie.async_client import AsyncAlpie
+import os
+from dotenv import load_dotenv
+from pi169.async_client import AsyncPi169Client
+
+load_dotenv()
 
 async def main():
-    # 1. Initialize the async client
-    client = AsyncAlpie(api_key="YOUR_API_KEY")
+    api_key = os.getenv("ALPIE_API_KEY")
+    if not api_key:
+        raise ValueError("API key missing")
 
-    print("Sending request...")
+    client = AsyncPi169Client(api_key=api_key)
 
-    # 2. Await the response
     response = await client.chat.completions.create(
         model="alpie-32b",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"}
-        ]
+        ],
     )
 
-    # 3. Access the data just like the sync version
-    print(f"Response: {response.choices[0].message.content}")
-    print(f"Tokens used: {response.usage.total_tokens}")
+    print(response.choices[0].message.content)
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -152,27 +178,36 @@ if __name__ == "__main__":
 #### Streaming Chat Completion (Async)
 ```python
 import asyncio
-from alpie.async_client import AsyncAlpie
+import os
+from dotenv import load_dotenv
+from pi169.async_client import AsyncPi169Client
+
+load_dotenv()
 
 async def main():
-    client = AsyncAlpie(api_key="YOUR_API_KEY")
+    api_key = os.getenv("ALPIE_API_KEY")
+    if not api_key:
+        raise ValueError("API key missing")
 
-    # 1. Request with stream=True
+    client = AsyncPi169Client(api_key=api_key)
+
     stream = await client.chat.completions.create(
         model="alpie-32b",
-        messages=[{"role": "user", "content": "Write a long poem about coding."}],
-        stream=True
+        messages=[
+            {"role": "user", "content": "What is the capital of France?"}
+        ],
+        stream=True,
     )
 
-    print("Assistant: ", end="", flush=True)
-
-    # 2. Iterate asynchronously over the chunks
     async for chunk in stream:
-        content = chunk.delta_content
+        if not chunk.choices:
+            continue
+        choice = chunk.choices[0]
+        delta = choice.get("delta", {})
+
+        content = delta.get("content")
         if content:
             print(content, end="", flush=True)
-    
-    print("\n--- Stream finished ---")
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -183,10 +218,18 @@ Process multiple requests concurrently for better performance:
 
 ```python
 import asyncio
-from alpie.async_client import AsyncAlpie
+import os
+from dotenv import load_dotenv
+from pi169.async_client import AsyncPi169Client
+
+load_dotenv()
 
 async def main():
-    client = AsyncAlpie(api_key="YOUR_API_KEY")
+    api_key = os.getenv("ALPIE_API_KEY")
+    if not api_key:
+        raise ValueError("API key missing")
+
+    client = AsyncPi169Client(api_key=api_key)
 
     # Create multiple tasks
     tasks = [
@@ -217,7 +260,7 @@ if __name__ == "__main__":
 
 ## Rate Limits and Quotas
 
-Alpie enforces rate limits to ensure fair and stable usage of the API.
+Pi169 enforces rate limits to ensure fair and stable usage of the API.
 
 ### General Rate Limits
 
@@ -252,13 +295,13 @@ The SDK includes a full typed exception hierarchy for safe and predictable error
 
 ### Base Exception
 ```python
-class AlpieError(Exception):
+class Pi169Error(Exception):
     ...
 ```
 
 ### Exception Hierarchy
 ```
-AlpieError
+Pi169Error
 ├── APIError
 ├── ContentPolicyViolationError
 ├── ContextWindowExceededError
@@ -291,35 +334,34 @@ KeyNotActive("Key not active", status_code=402, response_data={...})
 
 ### Catching Errors (Sync)
 
-**Catch all Alpie-related errors:**
+**Catch all Pi169-related errors:**
 ```python
-from alpie import AlpieError
+from pi169 import Pi169Error
 
 try:
     client.chat.completions.create(...)
-except AlpieError as e:
+except Pi169Error as e:
     print("Error:", e.message)
 ```
 
 **Catch specific errors:**
 ```python
-from alpie import (
-    Alpie,
+from pi169 import (
+    Pi169Client,
     AuthError,
     RateLimitError,
     TimeoutError,
     KeyNotActive,
     ModelNotFoundError,
-    AlpieError,
-    ChatMessage,
+    Pi169Error,
 )
 
-client = Alpie(api_key="YOUR_API_KEY")
+client = Pi169Client(api_key="YOUR_API_KEY")
 
 try:
     response = client.chat.completions.create(
         model="alpie-32b",
-        messages=[ChatMessage(role="user", content="Hello!")],
+        messages=[{"role": "user", "content": "Hello!"}],
         max_tokens=100
     )
 
@@ -338,8 +380,8 @@ except TimeoutError:
 except ModelNotFoundError:
     print("The requested model does not exist.")
 
-except AlpieError as e:
-    print("An Alpie SDK error occurred:", e)
+except Pi169Error as e:
+    print("A Pi169 SDK error occurred:", e)
 
 else:
     print("Response:", response.choices[0].message.content)
@@ -351,18 +393,18 @@ Error handling works identically in async contexts:
 
 ```python
 import asyncio
-from alpie.async_client import AsyncAlpie
-from alpie import (
+from pi169.async_client import AsyncPi169Client
+from pi169 import (
     AuthError,
     RateLimitError,
     TimeoutError,
     KeyNotActive,
     ModelNotFoundError,
-    AlpieError,
+    Pi169Error,
 )
 
 async def main():
-    client = AsyncAlpie(api_key="YOUR_API_KEY")
+    client = AsyncPi169Client(api_key="YOUR_API_KEY")
 
     try:
         response = await client.chat.completions.create(
@@ -386,8 +428,8 @@ async def main():
     except ModelNotFoundError:
         print("The requested model does not exist.")
 
-    except AlpieError as e:
-        print("An Alpie SDK error occurred:", e)
+    except Pi169Error as e:
+        print("A Pi169 SDK error occurred:", e)
 
     else:
         print("Response:", response.choices[0].message.content)
@@ -426,11 +468,9 @@ if __name__ == "__main__":
 - Working in environments without async support
 - Prototyping or learning
 
-
-
 ## Recommended Project Structure
 ```
-alpie/
+pi169/
 ├── __init__.py
 ├── client.py
 ├── async_client.py
@@ -445,7 +485,7 @@ alpie/
 
 ## Testing
 
-The Alpie SDK includes a complete pytest-based test suite.
+The Pi169 SDK includes a complete pytest-based test suite.
 
 **Run all tests:**
 ```bash
@@ -456,18 +496,19 @@ pytest
 ```
 project-root/
 │
-├── alpie/
-│   ├── __init__.py
-│   ├── client.py
-│   ├── async_client.py
-│   ├── errors.py
-│   ├── types.py
-│   ├── chat/
-│   │   ├── completions.py
-│   │   ├── async_completions.py
-│   │   └── schemas.py
-│   └── utils/
-│       └── http.py
+├── src/
+│   └── pi169/
+│       ├── __init__.py
+│       ├── client.py
+│       ├── async_client.py
+│       ├── errors.py
+│       ├── types.py
+│       ├── chat/
+│       │   ├── completions.py
+│       │   ├── async_completions.py
+│       │   └── schemas.py
+│       └── utils/
+│           └── http.py
 │
 └── tests/
     ├── test_streaming.py
@@ -499,7 +540,7 @@ project-root/
 
 ### Install Test Dependencies
 ```bash
-pip install pytest pytest-httpx pytest-asyncio respx
+pip install pytest pytest-httpx pytest-asyncio respx pytest-mock
 ```
 
 This allows mocking API responses so tests run offline.
@@ -531,6 +572,26 @@ pytest tests/test_async_streaming.py
 pytest tests/test_streaming.py::test_basic_stream
 ```
 
+## Environment Variables
+
+The SDK works seamlessly with environment variables for secure API key management:
+
+```bash
+# .env file
+ALPIE_API_KEY=your_api_key_here
+```
+
+```python
+import os
+from dotenv import load_dotenv
+from pi169 import Pi169Client
+
+load_dotenv()
+
+api_key = os.getenv("ALPIE_API_KEY")
+client = Pi169Client(api_key=api_key)
+```
+
 ## Support
 
 For questions, feature requests, or bug reports:
@@ -552,7 +613,7 @@ When contacting support, include:
 ### Version 0.1.0
 
 **New Features:**
-- Added async/await support with `AsyncAlpie` client
+- Added async/await support with `AsyncPi169Client` client
 - Added async streaming support
 - Added async error handling
 - Added concurrent request examples
@@ -567,11 +628,10 @@ When contacting support, include:
 - Added comprehensive async usage examples
 - Added best practices for sync vs async
 - Updated test suite documentation
-
-
+- Added environment variable support examples
 
 ## License
 
-Apache 2.0
+MIT License
 
 © 169PI
