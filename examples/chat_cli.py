@@ -2,8 +2,8 @@
 Interactive command-line chat interface using the Alpie SDK.
 """
 
-from alpie import Alpie, ChatMessage
-from alpie.exceptions import AlpieError
+from pi169 import Alpie, ChatMessage
+from pi169.exceptions import AlpieError
 import os
 import sys
 from dotenv import load_dotenv

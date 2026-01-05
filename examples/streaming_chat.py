@@ -2,8 +2,8 @@
 Interactive CLI example for streaming chat completions.
 """
 
-from alpie import Alpie, ChatMessage
-from alpie.exceptions import AlpieError
+from pi169 import Alpie, ChatMessage
+from pi169.exceptions import AlpieError
 import os
 from dotenv import load_dotenv
 

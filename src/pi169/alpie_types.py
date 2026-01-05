@@ -1,5 +1,5 @@
 """
-Type definitions for the Alpie SDK.
+Type definitions for the pi169 SDK.
 """
 
 from typing import List, Optional, Dict, Any, Literal

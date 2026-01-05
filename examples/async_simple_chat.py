@@ -1,24 +1,25 @@
 import asyncio
-from alpie.async_client import AsyncAlpie
+import os
+from dotenv import load_dotenv
+from pi169.async_client import AsyncPi169Client
+
+load_dotenv()
 
 async def main():
-    # 1. Initialize the client
-    client = AsyncAlpie(api_key="ALPIE_API_KEY") # Replace with your actual API key
+    api_key = os.getenv("ALPIE_API_KEY")
+    if not api_key:
+        raise ValueError("API key missing")
 
-    print("Sending request...")
+    client = AsyncPi169Client(api_key=api_key)
 
-    # 2. Await the response
     response = await client.chat.completions.create(
         model="alpie-32b",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"}
-        ]
+        ],
     )
 
-    # 3. Access the data just like the sync version
-    print(f"Response: {response.choices[0].message.content}")
-    print(f"Tokens used: {response.usage.total_tokens}")
+    print(response.choices[0].message.content)
 
 if __name__ == "__main__":
     asyncio.run(main())

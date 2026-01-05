@@ -1,16 +1,12 @@
-"""
-Main client class for the Alpie SDK.
-"""
-
 import json
-from typing import Iterator, Optional, Union, List
+from typing import AsyncIterator, Optional, Union, List
 import httpx
 
-from alpie.exceptions import (
+from pi169.exceptions import (
     APIError,
     AuthError,
     RateLimitError,
-    TimeoutError as AlpieTimeoutError,
+    TimeoutError as ApiTimeoutError,
     ServerError,
     EngineOverloadedError,
     ModelNotFoundError,
@@ -21,7 +17,7 @@ from alpie.exceptions import (
     KeyNotActive
 )
 
-from alpie.alpie_types import (
+from pi169.alpie_types import (
     ChatMessage,
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -29,12 +25,16 @@ from alpie.alpie_types import (
 )
 
 
-class Alpie:
+class AsyncPi169Client:
     """
-    Synchronous client for interacting with the 169Pi API.
+    Asynchronous client for interacting with the 169Pi API.
+
+    This client handles authentication, request formulation, and error handling
+    for async chat completions. It is designed to be used within an `asyncio` 
+    event loop.
 
     Args:
-        api_key (str): Your 169pi API key for authentication.
+        api_key (str): Your 169Pi API key for authentication.
         base_url (str, optional): The base URL for the API. 
             Defaults to "https://api.169pi.com/v1".
         timeout (float, optional): Request timeout in seconds. Defaults to 60.0.
@@ -42,27 +42,31 @@ class Alpie:
             Defaults to 2.
 
     Attributes:
-        chat (ChatCompletions): Access to chat completion endpoints.
+        chat (AsyncChatCompletions): Access to chat completion endpoints.
 
-    Example:
-        Basic synchronous usage:
+    Basic usage inside an async function:
 
-        >>> from aapie import Alpie
-        >>> 
-        >>> client = Alpie(api_key="your_api_key")
-        >>> 
-        >>> # Non-streaming request
-        >>> response = client.chat.completions.create(
-        >>>     model="model-id",
-        >>>     messages=[{"role": "user", "content": "Hello!"}]
-        >>> )
-        >>> print(response.choices[0].message.content)
+    >>> import asyncio
+    >>> from pi169.async_client import AsyncPi169Client
+    >>>
+    >>> async def main():
+    >>>     client = AsyncPi169Client(api_key="your_api_key")
+    >>>
+    >>>     # Non-streaming request
+    >>>     response = await client.chat.completions.create(
+    >>>         model="alpie-32b",
+    >>>         messages=[{"role": "user", "content": "Hello!"}]
+    >>>     )
+    >>>     print(response.choices[0].message.content)
+    >>>
+    >>> asyncio.run(main())
+
     """
 
     def __init__(
         self,
         api_key: str,
-        base_url: str = "https://api.169pi.com/v1",
+        base_url: str = "https://api.169pi.com/v1",  # Updated URL placeholder based on context
         timeout: float = 60.0,
         max_retries: int = 2,
     ):
@@ -74,7 +78,7 @@ class Alpie:
         self.timeout = timeout
         self.max_retries = max_retries
 
-        self.chat = ChatCompletions(self)
+        self.chat = AsyncChatCompletions(self)
 
     def _get_headers(self, stream: bool = False) -> dict:
         headers = {
@@ -93,29 +97,26 @@ class Alpie:
             error_data = {"error": {"message": response.text or "Unknown error"}}
 
         error_info = error_data.get("error", {})
-        print(error_info)
-    
-
+        
         if isinstance(error_info, dict):
             message = (
-            error_info.get("message") or
-            error_data.get("detail") or
-            error_data.get("error_description") or
-            str(error_info) or
-            response.text or
-            "Unknown error"
+                error_info.get("message") or
+                error_data.get("detail") or
+                error_data.get("error_description") or
+                str(error_info) or
+                response.text or
+                "Unknown error"
             )
             error_type = error_info.get("type", "unknown")
-
         else:
             message = (
-            str(error_info) or
-            error_data.get("message") or
-            error_data.get("detail") or
-            response.text or
-            "Unknown error"
-        )
-        error_type = "unknown"
+                str(error_info) or
+                error_data.get("message") or
+                error_data.get("detail") or
+                response.text or
+                "Unknown error"
+            )
+            error_type = "unknown"
 
         status_code = response.status_code
 
@@ -124,9 +125,7 @@ class Alpie:
                 message = "Invalid API key. Please check your API key and try again."
             raise AuthError(message, status_code, error_data)
 
-
         if status_code == 400:
-            # multiple possible API-level subtypes
             if error_type == "content_policy_violation":
                 raise ContentPolicyViolationError(message, status_code, error_data)
             elif error_type == "context_window_exceeded":
@@ -144,7 +143,6 @@ class Alpie:
             else:
                 raise APIError(message, status_code, error_data)
 
-
         if status_code == 403:
             raise ContentPolicyViolationError(message, status_code, error_data)
 
@@ -158,40 +156,40 @@ class Alpie:
             raise EngineOverloadedError(message, status_code, error_data)
 
         if status_code == 504:
-            raise AlpieTimeoutError(message, status_code, error_data)
+            raise ApiTimeoutError(message, status_code, error_data)
 
         if 500 <= status_code <= 599:
             raise ServerError(f"Server error {status_code}: {message}", status_code, error_data)
 
-        # Fallback for everything else
         raise APIError(f"API error {status_code}: {message}", status_code, error_data)
 
-class ChatCompletions:
-    """
-    Handler for chat completion endpoints.
 
-    This class provides methods to generate model responses synchronously.
+class AsyncChatCompletions:
+    """
+    Async handler for chat completion endpoints.
+
+    This class provides methods to generate model responses asynchronously.
     It supports both standard request-response patterns and streaming responses
     via Server-Sent Events (SSE).
     """
 
-    def __init__(self, client: Alpie):
+    def __init__(self, client: AsyncPi169Client):
         self.client = client
         self.completions = self
 
-    def create(
+    async def create(
         self,
         model: str,
         messages: List[Union[ChatMessage, dict]],
-        max_tokens: int = 1000,
+        max_tokens: int = 10000,
         temperature: float = 1.0,
         stream: bool = False,
         top_p: float = 1.0,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
-    ) -> Union[ChatCompletionResponse, Iterator[StreamChunk]]:
+    ) -> Union[ChatCompletionResponse, AsyncIterator[StreamChunk]]:
         """
-        Creates a model response for the given chat conversation.
+        Asynchronously creates a model response for the given chat conversation.
 
         Args:
             model (str): The name of the model to use (e.g., "alpie-32b").
@@ -199,7 +197,7 @@ class ChatCompletions:
                 the conversation so far. Each message should be a dictionary or 
                 ChatMessage object with 'role' and 'content' keys.
             max_tokens (int, optional): The maximum number of tokens to generate 
-                in the completion. Defaults to 1000.
+                in the completion. Defaults to 10000.
             temperature (float, optional): Sampling temperature to use, between 0.0 and 1.0. 
                 Higher values make output more random, lower values more deterministic. 
                 Defaults to 1.0.
@@ -216,10 +214,10 @@ class ChatCompletions:
                 in the text so far. Defaults to 0.0.
 
         Returns:
-            Union[ChatCompletionResponse, Iterator[StreamChunk]]: 
+            Union[ChatCompletionResponse, AsyncIterator[StreamChunk]]: 
             - If `stream` is False, returns a single `ChatCompletionResponse` object 
               containing the complete response.
-            - If `stream` is True, returns a synchronous iterator that yields 
+            - If `stream` is True, returns an asynchronous iterator that yields 
               `StreamChunk` objects.
 
         Raises:
@@ -228,20 +226,17 @@ class ChatCompletions:
             TimeoutError: If the request times out.
 
         Example:
-            >>> # Standard usage
-            >>> response = client.chat.completions.create(
-            >>>     model="my-model",
-            >>>     messages=[{"role": "user", "content": "Hello!"}]
+            >>> stream = await client.chat.completions.create(
+            >>> model="alpie-32b",
+            >>> messages=[{"role": "user", "content": "Hello!"}],
+            >>> stream=True,
             >>> )
-            >>> 
-            >>> # Streaming usage
-            >>> stream = client.chat.completions.create(
-            >>>     model="my-model",
-            >>>     messages=[{"role": "user", "content": "Hello!"}],
-            >>>     stream=True
-            >>> )
-            >>> for chunk in stream:
-            >>>     print(chunk.delta_content, end="")
+            >>> async for chunk in stream:
+            >>> if chunk.choices:
+            >>> delta = chunk.choices[0].get("delta", {})
+            >>> if delta.get("content"):
+            >>> print(delta["content"], end="")
+
         """
 
         chat_messages = []
@@ -264,29 +259,38 @@ class ChatCompletions:
             presence_penalty=presence_penalty,
         )
 
-        return (
-            self._create_streaming(request)
-            if stream
-            else self._create_non_streaming(request)
-        )
+        if stream:
+            return self._create_streaming(request)
+        else:
+            return await self._create_non_streaming(request)
 
-    def _create_non_streaming(self, request: ChatCompletionRequest) -> ChatCompletionResponse:
+    async def _create_non_streaming(self, request: ChatCompletionRequest) -> ChatCompletionResponse:
         """
         Internal method to handle non-streaming chat completion requests.
 
+        Sends a POST request to the API and parses the JSON response into a 
+        ChatCompletionResponse object.
+
         Args:
-            request (ChatCompletionRequest): The prepared request object.
+            request (ChatCompletionRequest): The prepared request object containing 
+                model parameters and messages.
 
         Returns:
             ChatCompletionResponse: The structured response from the API.
+
+        Raises:
+            ApiTimeoutError: If the request exceeds the client's timeout setting.
+            APIError: For standard HTTP errors or unexpected exceptions.
+            AuthError: If the API key is invalid.
         """
         url = f"{self.client.base_url}/chat/completions"
         headers = self.client._get_headers(stream=False)
         payload = request.to_dict()
 
         try:
-            with httpx.Client(timeout=self.client.timeout) as client:
-                response = client.post(url, headers=headers, json=payload)
+            # Using AsyncClient context manager
+            async with httpx.AsyncClient(timeout=self.client.timeout) as client:
+                response = await client.post(url, headers=headers, json=payload)
 
                 if response.status_code != 200:
                     self.client._handle_error_response(response)
@@ -295,7 +299,7 @@ class ChatCompletions:
                 return ChatCompletionResponse.from_dict(data)
 
         except httpx.TimeoutException as e:
-            raise AlpieTimeoutError(str(e))
+            raise ApiTimeoutError(str(e))
 
         except httpx.HTTPError as e:
             raise APIError(f"Network error: {str(e)}")
@@ -307,29 +311,35 @@ class ChatCompletions:
         except Exception as e:
             raise APIError(f"Unexpected error: {str(e)}")
 
-    def _create_streaming(self, request: ChatCompletionRequest) -> Iterator[StreamChunk]:
+    async def _create_streaming(self, request: ChatCompletionRequest) -> AsyncIterator[StreamChunk]:
         """
-        Internal method to handle streaming chat completion requests.
+        Internal method to handle streaming chat completion requests (SSE).
+
+        Establishes a persistent connection and yields chunks of data as they 
+        arrive using Server-Sent Events (SSE) format.
 
         Args:
             request (ChatCompletionRequest): The prepared request object.
 
         Yields:
             StreamChunk: A parsed chunk of the streaming response.
+
+        Raises:
+            APIError: If the stream is interrupted or contains error data.
         """
         url = f"{self.client.base_url}/chat/completions"
         headers = self.client._get_headers(stream=True)
         payload = request.to_dict()
 
         try:
-            with httpx.Client(timeout=None) as client:
-                with client.stream("POST", url, headers=headers, json=payload) as response:
+            async with httpx.AsyncClient(timeout=None) as client:
+                async with client.stream("POST", url, headers=headers, json=payload) as response:
 
                     if response.status_code != 200:
-                        response.read()
+                        await response.aread()  # Read response body asynchronously before handling error
                         self.client._handle_error_response(response)
 
-                    for chunk in response.iter_text():
+                    async for chunk in response.aiter_text():
                         if "data: " in chunk:
                             for part in chunk.strip().split("\n\n"):
                                 part = part.strip()
@@ -353,7 +363,7 @@ class ChatCompletions:
                                     continue
 
         except httpx.TimeoutException as e:
-            raise AlpieTimeoutError(str(e))
+            raise ApiTimeoutError(str(e))
 
         except httpx.HTTPError as e:
             raise APIError(f"Network error: {str(e)}")

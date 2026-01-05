@@ -1,10 +1,10 @@
 """
-Alpie SDK 
+Pi169 SDK
 """
 
-from alpie.client import Alpie
-from alpie.async_client import AsyncAlpie
-from alpie.exceptions import (
+from .client import Pi169Client
+from .exceptions import (
+    Pi169Error,
     AlpieError,
     APIError,
     AuthError,
@@ -18,7 +18,8 @@ from alpie.exceptions import (
     ContextWindowExceededError,
     UnsupportedParamsError,
 )
-from alpie.alpie_types import (
+
+from .alpie_types import (
     ChatMessage,
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -29,9 +30,16 @@ from alpie.alpie_types import (
 
 __version__ = "0.1.4"
 
+#  Backward compatibility
+Alpie = Pi169Client
+
 __all__ = [
-    "Alpie",
-    "AsyncAlpie",
+    # clients
+    "Pi169Client",
+    "AsyncPi169Client",
+
+    # errors
+    "Pi169Error",
     "AlpieError",
     "APIError",
     "AuthError",
@@ -44,6 +52,8 @@ __all__ = [
     "ContentPolicyViolationError",
     "ContextWindowExceededError",
     "UnsupportedParamsError",
+
+    # types
     "ChatMessage",
     "ChatCompletionRequest",
     "ChatCompletionResponse",

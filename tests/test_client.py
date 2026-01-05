@@ -5,8 +5,8 @@ Unit tests for the Alpie SDK client.
 import pytest
 import json
 from unittest.mock import MagicMock
-from alpie import Alpie, ChatMessage
-from alpie.exceptions import (
+from pi169 import Alpie, ChatMessage
+from pi169.exceptions import (
     AuthenticationError,
     RateLimitError,
     APIError,
