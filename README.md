@@ -260,7 +260,7 @@ if __name__ == "__main__":
 
 ### Performance Benchmarks
 
-![Alpie 32B Benchmark Results](assets/Benchmark.png)
+![Alpie 32B Benchmark Results](Benchmark.png)
 
 ## Rate Limits and Quotas
 
