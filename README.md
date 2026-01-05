@@ -258,6 +258,10 @@ if __name__ == "__main__":
 |-------|------------|-------------|
 | alpie-32b | 32B | Advanced reasoning model |
 
+### Performance Benchmarks
+
+![Alpie 32B Benchmark Results](assets/Benchmark.png)
+
 ## Rate Limits and Quotas
 
 Pi169 enforces rate limits to ensure fair and stable usage of the API.
