@@ -45,7 +45,7 @@ from pi169.async_client import AsyncPi169Client
 client = AsyncPi169Client(api_key="YOUR_API_KEY")
 ```
 
-Every request automatically sends (<a href="https://playground.169pi.ai/dashboard/api-keys" target="_blank">Create API Key</a>):
+Every request automatically sends ([Create API Key](https://playground.169pi.ai/dashboard/api-keys){:target="_blank"}):
 ```
 Authorization: Bearer <API_KEY>
 ```
