@@ -20,7 +20,7 @@ That's it! You're ready to interact with Alpie-Core from your terminal.
 ## Installation
 
 ```bash
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pi169
+pip install pi169
 ```
 
 Python 3.10+ required
