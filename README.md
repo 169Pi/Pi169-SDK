@@ -1,9 +1,24 @@
 # Pi169 Python SDK
 
-The Pi169 SDK provides a clean, type-safe, and robust interface for interacting with the Alpie 32B reasoning model.
-Designed for production workloads with **streaming support, async/await patterns, CLI integration, retries, timeouts, typed exceptions, and intuitive APIs**.
+Pi169 is the official Python SDK and CLI for Alpie-Core, a fine-tuned 32B reasoning model running in native 4-bit precision. It provides a production-ready interface for synchronous, asynchronous, and streaming inference, designed for real-world workloads.
+
+## Quick Start
+
+```bash
+# Install the SDK
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pi169
+
+# Set your API key
+export ALPIE_API_KEY="your_key_here"
+
+# Start using the CLI
+pi169 "Explain 4-bit quantization in simple terms"
+```
+
+That's it! You're ready to interact with Alpie-Core from your terminal.
 
 ## Installation
+
 ```bash
 pip install pi169
 ```
@@ -682,25 +697,27 @@ When contacting support, include:
 
 ### Version 0.1.0
 
+**Initial public release of Pi169 Python SDK with sync, async, and streaming support for Alpie-Core.**
+
 **New Features:**
-- Added CLI integration for command-line interactions
-- Added async/await support with `AsyncPi169Client` client
-- Added async streaming support
-- Added async error handling
-- Added concurrent request examples
-- Added context manager support for both sync and async clients
-- Added chat completions (sync and streaming)
-- Added typed exceptions and error mapping
-- Added retry logic, timeout configuration, and base client setup
-- Added available models listing
-- Added full pytest-based test suite
+- CLI integration for command-line interactions
+- Async/await support with `AsyncPi169Client` client
+- Async streaming support
+- Async error handling
+- Concurrent request examples
+- Context manager support for both sync and async clients
+- Chat completions (sync and streaming)
+- Typed exceptions and error mapping
+- Retry logic, timeout configuration, and base client setup
+- Available models listing
+- Full pytest-based test suite
 
 **Documentation:**
-- Added CLI usage guide and examples
-- Added comprehensive async usage examples
-- Added best practices for CLI vs Python SDK and sync vs async
-- Updated test suite documentation
-- Added environment variable support examples
+- CLI usage guide and examples
+- Comprehensive async usage examples
+- Best practices for CLI vs Python SDK and sync vs async
+- Test suite documentation
+- Environment variable support examples
 
 ## License
 
