@@ -115,8 +115,6 @@ The CLI automatically uses the `ALPIE_API_KEY` environment variable for authenti
 
 - `--stream` → Enable streaming mode for real-time token-by-token responses
 
-## Quickstart Examples
-
 ### Synchronous Usage
 
 #### Non-Streaming Chat Completion
