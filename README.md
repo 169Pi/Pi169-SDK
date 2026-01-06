@@ -129,14 +129,6 @@ The CLI automatically uses the `ALPIE_API_KEY` environment variable for authenti
 ### CLI Options
 
 - `--stream` → Enable streaming mode for real-time token-by-token responses
-- `--model` → Specify the model (default: alpie-32b)
-- `--max-tokens` → Set maximum tokens in response
-- `--temperature` → Control response randomness (0.0-1.0)
-
-**Example with options:**
-```bash
-pi169 "Explain quantum computing" --stream --max-tokens 500 --temperature 0.7
-```
 
 ## Quickstart Examples
 
@@ -690,8 +682,8 @@ client = Pi169Client(api_key=api_key)
 
 For questions, feature requests, or bug reports:
 
-- **GitHub Issues:** [https://github.com/169pi/Alpie-Chat-SDK/issues](https://github.com/169pi/Alpie-Chat-SDK/issues)
-- **Support Email:** contact@169pi.com
+- **GitHub Issues:** [https://github.com/169Pi/Pi169-SDK](https://github.com/169Pi/Pi169-SDK)
+- **Support Email:** support@169pi.com
 
 When contacting support, include:
 
@@ -704,7 +696,7 @@ When contacting support, include:
 
 ## Changelog
 
-### Version 0.1.0
+### Version 1.0.0
 
 **Initial public release of Pi169 Python SDK with sync, async, and streaming support for Alpie-Core.**
 
