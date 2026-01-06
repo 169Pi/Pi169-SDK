@@ -6,7 +6,7 @@ Pi169 is the official Python SDK and CLI for Alpie-Core, a fine-tuned 32B reason
 
 ```bash
 # Install the SDK
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pi169
+pip install pi169
 
 # Set your API key
 export ALPIE_API_KEY="your_key_here"
@@ -20,7 +20,7 @@ That's it! You're ready to interact with Alpie-Core from your terminal.
 ## Installation
 
 ```bash
-pip install pi169
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pi169
 ```
 
 Python 3.10+ required
@@ -129,7 +129,16 @@ The CLI automatically uses the `ALPIE_API_KEY` environment variable for authenti
 ### CLI Options
 
 - `--stream` → Enable streaming mode for real-time token-by-token responses
+- `--model` → Specify the model (default: alpie-32b)
+- `--max-tokens` → Set maximum tokens in response
+- `--temperature` → Control response randomness (0.0-1.0)
 
+**Example with options:**
+```bash
+pi169 "Explain quantum computing" --stream --max-tokens 500 --temperature 0.7
+```
+
+## Quickstart Examples
 
 ### Synchronous Usage
 
