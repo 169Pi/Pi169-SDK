@@ -1,7 +1,7 @@
 # Pi169 Python SDK
 
 The Pi169 SDK provides a clean, type-safe, and robust interface for interacting with the Alpie 32B reasoning model.
-Designed for production workloads with **streaming support, async/await patterns, retries, timeouts, typed exceptions, and intuitive APIs**.
+Designed for production workloads with **streaming support, async/await patterns, CLI integration, retries, timeouts, typed exceptions, and intuitive APIs**.
 
 ## Installation
 ```bash
@@ -65,6 +65,7 @@ client = AsyncPi169Client(
 
 ## Features
 
+- **CLI Integration** for quick command-line interactions
 - Streaming & Non-Streaming Chat Completions
 - **Async/Await Support** for high-performance concurrent requests
 - Clean, type-safe Python Interface (dataclasses, type hints)
@@ -72,6 +73,55 @@ client = AsyncPi169Client(
 - Production-Ready Networking (retries, timeouts, httpx)
 - Fully Tested with pytest
 - Optimized for Reasoning Models
+
+## CLI Integration
+
+The Pi169 SDK includes a powerful command-line interface for quick interactions with the Alpie model directly from your terminal.
+
+### Setting Up Your API Key
+
+Before using the CLI, set your API key as an environment variable:
+
+**macOS/Linux:**
+```bash
+export ALPIE_API_KEY="your_api_key_here"
+```
+
+**Windows Command Prompt:**
+```cmd
+set ALPIE_API_KEY=your_api_key_here
+```
+
+**Windows PowerShell:**
+```powershell
+$env:ALPIE_API_KEY = "your_api_key_here"
+```
+
+### CLI Usage
+
+**Non-Streaming Mode (default):**
+```bash
+pi169 "What is the capital of France?"
+```
+
+**Streaming Mode:**
+```bash
+pi169 "What is the capital of France?" --stream
+```
+
+The CLI automatically uses the `ALPIE_API_KEY` environment variable for authentication, making it easy to interact with the API without writing any code.
+
+### CLI Options
+
+- `--stream` → Enable streaming mode for real-time token-by-token responses
+- `--model` → Specify the model (default: alpie-32b)
+- `--max-tokens` → Set maximum tokens in response
+- `--temperature` → Control response randomness (0.0-1.0)
+
+**Example with options:**
+```bash
+pi169 "Explain quantum computing" --stream --max-tokens 500 --temperature 0.7
+```
 
 ## Quickstart Examples
 
@@ -457,6 +507,22 @@ if __name__ == "__main__":
 
 ## Best Practices
 
+### When to Use CLI vs Python SDK
+
+**Use CLI when:**
+- Quick testing or prototyping
+- One-off queries or experiments
+- Shell scripting and automation
+- Learning the API without writing code
+- Debugging API responses
+
+**Use Python SDK when:**
+- Building applications or services
+- Need complex conversation flows
+- Require error handling and retries
+- Processing multiple requests
+- Integration with existing Python code
+
 ### When to Use Async vs Sync
 
 **Use Async when:**
@@ -478,6 +544,7 @@ pi169/
 ├── __init__.py
 ├── client.py
 ├── async_client.py
+├── cli.py
 ├── chat/
 │   ├── completions.py
 │   └── async_completions.py
@@ -505,6 +572,7 @@ project-root/
 │       ├── __init__.py
 │       ├── client.py
 │       ├── async_client.py
+│       ├── cli.py
 │       ├── errors.py
 │       ├── types.py
 │       ├── chat/
@@ -524,7 +592,8 @@ project-root/
     ├── test_retry_logic.py
     ├── test_async_retry_logic.py
     ├── test_chat_completions.py
-    └── test_async_chat_completions.py
+    ├── test_async_chat_completions.py
+    └── test_cli.py
 ```
 
 ### What Each Test File Covers
@@ -541,6 +610,7 @@ project-root/
 | test_async_retry_logic.py | Tests async retry logic |
 | test_chat_completions.py | Tests non-streaming chat completion flow |
 | test_async_chat_completions.py | Tests async non-streaming completions |
+| test_cli.py | Tests CLI functionality and argument parsing |
 
 ### Install Test Dependencies
 ```bash
@@ -569,6 +639,11 @@ pytest tests/test_streaming.py
 **Run async tests:**
 ```bash
 pytest tests/test_async_streaming.py
+```
+
+**Run CLI tests:**
+```bash
+pytest tests/test_cli.py
 ```
 
 **Run a single test:**
@@ -610,13 +685,14 @@ When contacting support, include:
 - API endpoint used
 - Error message or traceback
 - Minimal reproducible example if possible
-- Whether you're using sync or async client
+- Whether you're using sync, async, or CLI
 
 ## Changelog
 
 ### Version 0.1.0
 
 **New Features:**
+- Added CLI integration for command-line interactions
 - Added async/await support with `AsyncPi169Client` client
 - Added async streaming support
 - Added async error handling
@@ -629,8 +705,9 @@ When contacting support, include:
 - Added full pytest-based test suite
 
 **Documentation:**
+- Added CLI usage guide and examples
 - Added comprehensive async usage examples
-- Added best practices for sync vs async
+- Added best practices for CLI vs Python SDK and sync vs async
 - Updated test suite documentation
 - Added environment variable support examples
 
