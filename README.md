@@ -5,7 +5,7 @@ Designed for production workloads with **streaming support, async/await patterns
 
 ## Installation
 ```bash
-pip install pi169
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pi169
 ```
 
 Python 3.10+ required

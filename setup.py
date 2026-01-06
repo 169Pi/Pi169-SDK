@@ -5,9 +5,9 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="pi169",   # package name based on folder src/pi169
-    version="0.1.0",
+    version="0.1.3",
     author="169PI",
-    author_email="contact@169pi.com",
+    author_email="support@169pi.com",
     description="Production-ready Python SDK for the Pi169 reasoning model API platform",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -16,7 +16,7 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     include_package_data=True,
-    license="MIT",
+    license="Apache-2.0",
 
     install_requires=[
         "certifi>=2025.11.12",
