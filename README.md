@@ -1,5 +1,7 @@
 # Pi169 Python SDK
 
+[![PyPI](https://img.shields.io/badge/PyPI-pi169-blue)](https://pypi.org/project/pi169/1.0.0/)
+
 Pi169 is the official Python SDK and CLI for Alpie-Core, a fine-tuned 32B reasoning model running in native 4-bit precision. It provides a production-ready interface for synchronous, asynchronous, and streaming inference, designed for real-world workloads.
 
 ## Quick Start
@@ -43,7 +45,7 @@ from pi169.async_client import AsyncPi169Client
 client = AsyncPi169Client(api_key="YOUR_API_KEY")
 ```
 
-Every request automatically sends ([Create API Key](https://playground.169pi.ai/dashboard/api-keys)):
+Every request automatically sends (<a href="https://playground.169pi.ai/dashboard/api-keys" target="_blank">Create API Key</a>):
 ```
 Authorization: Bearer <API_KEY>
 ```
