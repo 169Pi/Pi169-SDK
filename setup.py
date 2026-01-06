@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="pi169",   # package name based on folder src/pi169
-    version="0.1.3",
+    version="0.1.0",
     author="169PI",
     author_email="support@169pi.com",
-    description="Production-ready Python SDK for the Pi169 reasoning model API platform",
+    description="Production-ready Python SDK for Alpie-Core, a 4-bit quantized 32B reasoning model achieving state-of-the-art efficiency and performance",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/169Pi/Alpie-Chat-SDK",
+    url="https://github.com/169Pi/Pi169-SDK",
 
     package_dir={"": "src"},
     packages=find_packages(where="src"),
