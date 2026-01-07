@@ -1,6 +1,6 @@
 # Pi169 Python SDK
 
-[![PyPI](https://img.shields.io/badge/PyPI-pi169-blue)](https://pypi.org/project/pi169/1.0.0/)
+[![PyPI](https://img.shields.io/badge/PyPI-pi169-blue)](https://pypi.org/project/pi169/0.1/)
 
 Pi169 is the official Python SDK and CLI for Alpie-Core, a fine-tuned 32B reasoning model running in native 4-bit precision. It provides a production-ready interface for synchronous, asynchronous, and streaming inference, designed for real-world workloads.
 
@@ -698,7 +698,7 @@ When contacting support, include:
 
 ## Changelog
 
-### Version 1.0.0
+### Version 0.1
 
 **Initial public release of Pi169 Python SDK with sync, async, and streaming support for Alpie-Core.**
 
